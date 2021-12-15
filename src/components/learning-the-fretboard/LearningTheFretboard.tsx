@@ -1,29 +1,22 @@
 import React, { useEffect } from 'react';
 import Select from 'react-select';
-import styled, { css } from 'styled-components/macro';
-import { Fret } from '../models/Frets';
-import { ALL_NOTES } from '../models/Notes';
-import { ALL_STRINGS, GuitarString } from '../models/Strings';
-import { getRandomInt, returnFretForNote, returnNoteForFret } from '../utils';
+import styled from 'styled-components/macro';
+import { ALL_STRINGS, GuitarString } from '../../models/Strings';
 import { Button, ResponsiveContext, Box, Text, Heading } from 'grommet';
+import FretboardQuestionGenerator, { FretboardQuestion, FretboardQuizMode } from './FretboardQuestionGenerator';
 
-
-type Mode = 'NOTE' | 'FRET' | 'MIX';
-
-interface Question {
-  question: string;
-  answer: string;
-}
+const MODE_LOCAL_STORAGE_KEY = 'FRETBOARD_QUESTION_MODE';
+const STRINGS_LOCAL_STORAGE_KEY = 'FRETBOARD_STRINGS';
 
 const MODE_OPTIONS = [{
   label: 'Note',
-  value: 'NOTE' as Mode
+  value: 'NOTE' as FretboardQuizMode
 }, {
   label: 'Fret',
-  value: 'FRET' as Mode,
+  value: 'FRET' as FretboardQuizMode,
 }, {
   label: 'Mix',
-  value: 'MIX' as Mode
+  value: 'MIX' as FretboardQuizMode
 }];
 
 const STRING_OPTIONS = ALL_STRINGS.map(s => ({
@@ -83,14 +76,15 @@ const GenerateQuestionWrapper = styled.div`
 
 export default function LearningTheFretboard() {
 
-  const [mode, setMode] = React.useState<Mode>('MIX')
-  const [strings, setStrings] = React.useState<GuitarString[]>([6]);
-  const [question, setQuestion] = React.useState<Question>();
+  const [mode, setMode] = React.useState<FretboardQuizMode>(getInitialMode())
+  const [strings, setStrings] = React.useState<GuitarString[]>(getIntialStrings());
+  const [question, setQuestion] = React.useState<FretboardQuestion>();
   const [showingAnswer, setShowingAnswer] = React.useState(false);
 
   const generateNewQuestion = React.useCallback(() => {
     setShowingAnswer(false);
-    const newQuestion = generateQuestion(mode, strings);
+    const newQuestion = FretboardQuestionGenerator
+      .generateRandomQuestion(mode, strings);
     setQuestion(newQuestion)
   }, [mode, strings])
 
@@ -102,7 +96,7 @@ export default function LearningTheFretboard() {
 
   useEffect(() => {
     setShowingAnswer(false);
-    setQuestion(generateQuestion(mode, strings))
+    setQuestion(FretboardQuestionGenerator.generateRandomQuestion(mode, strings))
   }, [mode, strings])
 
   useEffect(() => {
@@ -160,7 +154,8 @@ export default function LearningTheFretboard() {
           <Settings 
             pad="small" 
             gap="medium"
-            border={size === 'small' ? 'top' : 'left'}
+            border={size === 'small' ? 'bottom' : 'left'}
+            style={size === 'small' ? { order: -1 } : {}}
           >
             <Heading level="4" size="small" margin={{ top: "small", right: "xlarge", bottom: "none" }}>Settings</Heading>
             <Box 
@@ -174,9 +169,11 @@ export default function LearningTheFretboard() {
                   isMulti
                   value={STRING_OPTIONS.filter(option => strings.includes(option.value))}
                   isSearchable={false}
-                  onChange={(newStrings) => {
-                    if (newStrings.length) {
-                      setStrings(newStrings.map(({ value }) => value))
+                  onChange={(stringValues) => {
+                    if (stringValues.length) {
+                      const newStrings = stringValues.map(({ value }) => value)
+                      setLocalStrings(newStrings);
+                      setStrings(newStrings);
                     }
                   }}
                   isClearable={false}
@@ -187,9 +184,10 @@ export default function LearningTheFretboard() {
                 <Select
                   options={MODE_OPTIONS}
                   value={MODE_OPTIONS.find(option => option.value === mode)}
-                  onChange={(newMode) => {
-                    if (newMode) {
-                      setMode(newMode.value);
+                  onChange={(modeOption) => {
+                    if (modeOption) {
+                      setLocalModal(modeOption.value)
+                      setMode(modeOption.value);
                     }
                   }}
                   isSearchable={false}
@@ -204,39 +202,30 @@ export default function LearningTheFretboard() {
   )
 }
 
-function generateQuestion(mode: Mode, strings: GuitarString[]): Question {
-  const string = strings[getRandomInt(strings.length - 1)];
-  switch (mode) {
-    case 'FRET': {
-      return generateFretQuestion(string);
-    }
-    case 'NOTE': {
-      return generateNoteQuestion(string);
-    }
-    default: {
-      return getRandomInt(1) === 0 
-        ? generateFretQuestion(string)
-        : generateNoteQuestion(string);
-    }
+function getInitialMode() {
+  return localStorage.getItem(MODE_LOCAL_STORAGE_KEY) as FretboardQuizMode || 'MIX'
+}
+
+function setLocalModal(mode: FretboardQuizMode) {
+  localStorage.setItem(MODE_LOCAL_STORAGE_KEY, mode); 
+}
+
+function getIntialStrings(): GuitarString[] {
+  const defaultReturn: GuitarString[] = [6];
+  try {
+    const localStoredList = localStorage.getItem(STRINGS_LOCAL_STORAGE_KEY);
+    const storedStrings = localStoredList?.split(',')
+      .map((s) => Number(s))
+      .filter(n => !Number.isNaN(n))
+      .filter(n => ALL_STRINGS.includes(n as GuitarString));
+    return storedStrings && storedStrings?.length > 0
+      ? storedStrings as GuitarString[]
+      : defaultReturn;
+  } catch (e) {
+    return defaultReturn;
   }
 }
 
-function generateFretQuestion(string: GuitarString): Question {
-  const fretToGuess = getRandomInt(12) as Fret;
-  const noteOnFret = returnNoteForFret(string, fretToGuess);
-  return {
-    question: `Fret ${fretToGuess} on string ${string}`,
-    answer: noteOnFret,
-  }
+function setLocalStrings(strings: GuitarString[]) {
+  localStorage.setItem(STRINGS_LOCAL_STORAGE_KEY, strings.join(','))
 }
-
-function generateNoteQuestion(string: GuitarString): Question {
-  const noteToGuess = ALL_NOTES[getRandomInt(11)];
-  const fretWithNote = returnFretForNote(string, noteToGuess);
-
-  return {
-    question: `Where is ${noteToGuess} on string ${string}`,
-    answer: String(fretWithNote),
-  }
-}
-

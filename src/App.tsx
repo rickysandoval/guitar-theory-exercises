@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import styled from 'styled-components/macro';
 import SidebarNav from './components/SidebarNav';
-import LearningTheFretboard from './components/LearningTheFretboard';
+import LearningTheFretboard from './components/learning-the-fretboard/LearningTheFretboard';
 import { Grommet, Main, Box, Header, Heading, ResponsiveContext } from 'grommet';
 import theme from './theme';
 
