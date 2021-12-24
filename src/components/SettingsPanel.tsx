@@ -37,6 +37,9 @@ export default function SettingsPanel({
         isOpen={isOpen}
         shadow="base"
         pt="12"
+        pl="4"
+        pr="4"
+        overflow="auto"
       >
         {children}
       </SettingsDrawer>

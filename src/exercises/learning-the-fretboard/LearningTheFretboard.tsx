@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Button, Flex, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Text } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import Select from 'react-select';
 import styled from 'styled-components/macro';
 import SettingsPanel from '../../components/SettingsPanel';
 import { ALL_STRINGS, GuitarString } from '../../models/Strings';
 import FretboardQuestionGenerator, { FretboardQuestion, FretboardQuizMode } from './FretboardQuestionGenerator';
-
-const MODE_LOCAL_STORAGE_KEY = 'FRETBOARD_QUESTION_MODE';
-const STRINGS_LOCAL_STORAGE_KEY = 'FRETBOARD_STRINGS';
 
 const MODE_OPTIONS = [{
   label: 'Note',
@@ -149,9 +146,10 @@ export default function LearningTheFretboard() {
       <SettingsPanel>
         <Flex 
           direction={'column'}
+          maxWidth="200px"
           >
-            <Flex>
-              <Text >String</Text>
+            <Box pb="4">
+              <Text>String</Text>
               <Select
                 options={STRING_OPTIONS}
                 isMulti
@@ -160,58 +158,38 @@ export default function LearningTheFretboard() {
                 onChange={(stringValues) => {
                   if (stringValues.length) {
                     const newStrings = stringValues.map(({ value }) => value);
-                    setLocalStrings(newStrings);
                     setStrings(newStrings);
                   }
                 }}
                 isClearable={false}
               />
-            </Flex>
-            <Flex>
+            </Box>
+            <Box pb="4">
               <Text>Mode</Text>
               <Select
                 options={MODE_OPTIONS}
                 value={MODE_OPTIONS.find(option => option.value === mode)}
                 onChange={(modeOption) => {
                   if (modeOption) {
-                    setLocalModal(modeOption.value);
                     setMode(modeOption.value);
                   }
                 }}
                 isSearchable={false}
                 isClearable={false}
               />
-            </Flex>
+            </Box>
           </Flex>
       </SettingsPanel>
     </Flex>
   );
 }
 
-function getInitialMode() {
-  return localStorage.getItem(MODE_LOCAL_STORAGE_KEY) as FretboardQuizMode || 'MIX';
+function getInitialMode(): FretboardQuizMode {
+  return 'MIX';
 }
 
-function setLocalModal(mode: FretboardQuizMode) {
-  localStorage.setItem(MODE_LOCAL_STORAGE_KEY, mode); 
-}
 
 function getInitialStrings(): GuitarString[] {
   const defaultReturn: GuitarString[] = [6];
-  try {
-    const localStoredList = localStorage.getItem(STRINGS_LOCAL_STORAGE_KEY);
-    const storedStrings = localStoredList?.split(',')
-      .map((s) => Number(s))
-      .filter(n => !Number.isNaN(n))
-      .filter(n => ALL_STRINGS.includes(n as GuitarString));
-    return storedStrings && storedStrings?.length > 0
-      ? storedStrings as GuitarString[]
-      : defaultReturn;
-  } catch (e) {
-    return defaultReturn;
-  }
-}
-
-function setLocalStrings(strings: GuitarString[]) {
-  localStorage.setItem(STRINGS_LOCAL_STORAGE_KEY, strings.join(','));
+  return defaultReturn; 
 }

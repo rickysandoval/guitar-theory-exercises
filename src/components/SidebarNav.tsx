@@ -10,7 +10,7 @@ export default function SidebarNav() {
       borderColor="gray.100"
     >
       <Flex direction="column">
-        <Button as="a" href="#" p="4" variant="ghost" borderRadius={0}>Learning The Fretboard</Button>
+        <Button as="a" href="/exercises/learning-the-fretboard" p="4" variant="ghost" borderRadius={0}>Learning The Fretboard</Button>
       </Flex>
     </Box>
   );
