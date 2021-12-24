@@ -1,6 +1,6 @@
-import { Fret } from "./models/Frets";
-import { ALL_NOTES, Note } from "./models/Notes";
-import { GuitarString, stringToNoteMap } from "./models/Strings";
+import { Fret } from './models/Frets';
+import { ALL_NOTES, Note } from './models/Notes';
+import { GuitarString, stringToNoteMap } from './models/Strings';
 
 /**
  * returns a fret for a given string and note
@@ -17,7 +17,7 @@ export function returnFretForNote(string: GuitarString, note: Note): Fret {
  * returns a note for a given string and fret
  */
 export function returnNoteForFret(string: GuitarString, fret: Fret): Note {
-  const stringNote = stringToNoteMap[string]
+  const stringNote = stringToNoteMap[string];
   const noteOnFret = ALL_NOTES[(ALL_NOTES.indexOf(stringNote) + fret) % 12];
   return noteOnFret;
 }

@@ -1,18 +1,17 @@
-import React from 'react';
-import styled from 'styled-components/macro';
-import { Sidebar, Nav, Button } from 'grommet';
-
-const Wrapper = styled(Sidebar)`
-  display: flex;
-  flex-direction: column;
-`
+import { Box, Flex, Button } from '@chakra-ui/react';
 
 export default function SidebarNav() {
+
   return (
-    <Wrapper pad={{ top: 'small'}} border="right" background="background-contrast">
-      <Nav gap="none" pad="none">
-        <Button label="Learning The Fretboard"/>
-      </Nav>
-    </Wrapper>
+    <Box 
+      pt={1} 
+      background="gray.50" 
+      borderRight="1px" 
+      borderColor="gray.100"
+    >
+      <Flex direction="column">
+        <Button as="a" href="#" p="4" variant="ghost" borderRadius={0}>Learning The Fretboard</Button>
+      </Flex>
+    </Box>
   );
 }

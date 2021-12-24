@@ -1,7 +1,7 @@
-import { Fret } from "../../models/Frets";
-import { ALL_NOTES, Note } from "../../models/Notes";
-import { GuitarString } from "../../models/Strings";
-import { getRandomInt, returnFretForNote, returnNoteForFret } from "../../utils";
+import { Fret } from '../../models/Frets';
+import { ALL_NOTES, Note } from '../../models/Notes';
+import { GuitarString } from '../../models/Strings';
+import { getRandomInt, returnFretForNote, returnNoteForFret } from '../../utils';
 
 export interface FretboardQuestion {
   question: string;
@@ -43,19 +43,19 @@ export default class FretboardQuestionGenerator {
     const noteOnFret = returnNoteForFret(string, fretToGuess);
     this.previousQuestionPieces = {
       string: string,
-      fret: fretToGuess
+      fret: fretToGuess,
     };
     return {
       question: `Fret ${fretToGuess} on string ${string}`,
       answer: noteOnFret,
-    }
+    };
   }
 
   private static getRandomFret(forString: GuitarString): Fret {
     const fretToGuess = getRandomInt(12) as Fret;
     const {
       fret: prevFret,
-      string: prevString
+      string: prevString,
     } = (this.previousQuestionPieces || {});
     return forString === prevString && fretToGuess === prevFret
       ? this.getRandomFret(forString)
@@ -67,12 +67,12 @@ export default class FretboardQuestionGenerator {
     const fretWithNote = returnFretForNote(string, noteToGuess);
     this.previousQuestionPieces = {
       string: string,
-      note: noteToGuess
+      note: noteToGuess,
     };
     return {
       question: `Where is ${noteToGuess} on string ${string}`,
       answer: String(fretWithNote),
-    }
+    };
   }
 
 
@@ -80,7 +80,7 @@ export default class FretboardQuestionGenerator {
     const noteToGuess = ALL_NOTES[getRandomInt(11)];
     const {
       note: prevNote,
-      string: prevString
+      string: prevString,
     } = (this.previousQuestionPieces || {});
     return forString === prevString && noteToGuess === prevNote 
       ? this.getRandomNote(forString)

@@ -11,6 +11,6 @@ export const stringToNoteMap: {
   4: 'D',
   5: 'A',
   6: 'E',
-}
+};
 
-export const ALL_STRINGS: GuitarString[] = [1,2,3,4,5,6];
+export const ALL_STRINGS: GuitarString[] = [1, 2, 3, 4, 5, 6];
