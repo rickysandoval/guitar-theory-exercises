@@ -3,7 +3,7 @@ import { Box, IconButton } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components/macro';
 
-const SettingsDrawer = styled(Box)<{ isOpen: boolean }>`
+const SettingsDrawer = styled(Box)<{ open: boolean }>`
   position: absolute;
   height: 100%;
   width: 100vw;
@@ -11,7 +11,7 @@ const SettingsDrawer = styled(Box)<{ isOpen: boolean }>`
   right: 0;
   background: white;
   transform: translateX(100%);
-  ${({ isOpen }) => isOpen && css`
+  ${({ open }) => open && css`
     transform: translateX(0);
   `}
 `;
@@ -22,7 +22,7 @@ export default function SettingsPanel({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Box height="100%" position="relative" pt="2" pr="2">
+    <Box height="100%" position="relative" pt="2" pr="2" pl="2">
       <div>
         <IconButton 
           position="relative"
@@ -34,7 +34,7 @@ export default function SettingsPanel({
         />
       </div>
       <SettingsDrawer 
-        isOpen={isOpen}
+        open={isOpen}
         shadow="base"
         pt="12"
         pl="4"

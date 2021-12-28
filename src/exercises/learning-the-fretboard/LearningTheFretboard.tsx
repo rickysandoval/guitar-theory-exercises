@@ -5,6 +5,8 @@ import Select from 'react-select';
 import styled from 'styled-components/macro';
 import SettingsPanel from '../../components/SettingsPanel';
 import { ALL_STRINGS, GuitarString } from '../../models/Strings';
+import ExerciseContainer from '../ExerciseContainer';
+import ExerciseHeading from '../ExerciseHeading';
 import FretboardQuestionGenerator, { FretboardQuestion, FretboardQuizMode } from './FretboardQuestionGenerator';
 
 const MODE_OPTIONS = [{
@@ -102,46 +104,49 @@ export default function LearningTheFretboard() {
 
   return (
     <Flex height="100%">
-      <Flex flex="1" direction="column" pt="7">
-        <QuestionWrapper>
-          {question && (
-            <QuestionCard
-              boxShadow="base"
-              onClick={() => {
-                if (!showingAnswer) {
-                  setShowingAnswer(true);
-                } else {
-                  generateNewQuestion();
-                }
-              }}
-            >
-              <QuestionText>{question.question}</QuestionText>
-                {
-                  showingAnswer 
-                    ? (<QuestionText>{question.answer}</QuestionText>) 
-                    : (
-                    <Button 
-                      colorScheme={'brand'}
-                      variant="solid"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowingAnswer(true);
-                      }}>
-                        Show Answer
-                      </Button>
-                    )
-                }
-            </QuestionCard>
-          )}
-        </QuestionWrapper>
-        <GenerateQuestionWrapper>
-          <Button  
-            colorScheme={'brand'}
-            variant="outline" 
-            bg="white"
-            onClick={generateNewQuestion}
-          >Generate Question</Button>
-        </GenerateQuestionWrapper>
+      <Flex flex="1" direction="column">
+        <ExerciseHeading title="Learning The Fretboard"></ExerciseHeading>
+        <ExerciseContainer>
+          <QuestionWrapper>
+            {question && (
+              <QuestionCard
+                boxShadow="base"
+                onClick={() => {
+                  if (!showingAnswer) {
+                    setShowingAnswer(true);
+                  } else {
+                    generateNewQuestion();
+                  }
+                }}
+              >
+                <QuestionText>{question.question}</QuestionText>
+                  {
+                    showingAnswer 
+                      ? (<QuestionText>{question.answer}</QuestionText>) 
+                      : (
+                      <Button 
+                        colorScheme={'brand'}
+                        variant="solid"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowingAnswer(true);
+                        }}>
+                          Show Answer
+                        </Button>
+                      )
+                  }
+              </QuestionCard>
+            )}
+          </QuestionWrapper>
+          <GenerateQuestionWrapper>
+            <Button  
+              colorScheme={'brand'}
+              variant="outline" 
+              bg="white"
+              onClick={generateNewQuestion}
+            >Generate Question</Button>
+          </GenerateQuestionWrapper>
+        </ExerciseContainer>
       </Flex>
       <SettingsPanel>
         <Flex 

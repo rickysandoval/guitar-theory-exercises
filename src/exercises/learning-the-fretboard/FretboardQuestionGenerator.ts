@@ -1,7 +1,8 @@
 import { Fret } from '../../models/Frets';
-import { ALL_NOTES, Note } from '../../models/Notes';
+import { Note } from '../../models/Notes';
 import { GuitarString } from '../../models/Strings';
-import { getRandomInt, returnFretForNote, returnNoteForFret } from '../../utils';
+import { generateRandomNote, returnFretForNote, returnNoteForFret } from '../../utils/note-utils';
+import { getRandomInt } from '../../utils/number-utils';
 
 export interface FretboardQuestion {
   question: string;
@@ -9,7 +10,6 @@ export interface FretboardQuestion {
 }
 
 export type FretboardQuizMode = 'NOTE' | 'FRET' | 'MIX';
-
 
 
 export default class FretboardQuestionGenerator {
@@ -63,7 +63,8 @@ export default class FretboardQuestionGenerator {
   }
 
   private static generateNoteQuestion(string: GuitarString): FretboardQuestion {
-    const noteToGuess = this.getRandomNote(string);
+    const excludeNotes = this.previousQuestionPieces?.note ? [this.previousQuestionPieces?.note] : [];
+    const noteToGuess = generateRandomNote(excludeNotes);
     const fretWithNote = returnFretForNote(string, noteToGuess);
     this.previousQuestionPieces = {
       string: string,
@@ -73,17 +74,5 @@ export default class FretboardQuestionGenerator {
       question: `Where is ${noteToGuess} on string ${string}`,
       answer: String(fretWithNote),
     };
-  }
-
-
-  private static getRandomNote(forString: GuitarString): Note {
-    const noteToGuess = ALL_NOTES[getRandomInt(11)];
-    const {
-      note: prevNote,
-      string: prevString,
-    } = (this.previousQuestionPieces || {});
-    return forString === prevString && noteToGuess === prevNote 
-      ? this.getRandomNote(forString)
-      : noteToGuess;
   }
 }

@@ -1,4 +1,9 @@
 import { Box, Flex, Button } from '@chakra-ui/react';
+import { PropsWithChildren } from 'react';
+
+const NavLink = ({ href, children }: PropsWithChildren<{ href: string }>) => (
+  <Button as="a" href={href} p="4" variant="ghost" borderRadius={0} justifyContent={'flex-start'}>{children}</Button>
+);
 
 export default function SidebarNav() {
 
@@ -10,7 +15,8 @@ export default function SidebarNav() {
       borderColor="gray.100"
     >
       <Flex direction="column">
-        <Button as="a" href="/exercises/learning-the-fretboard" p="4" variant="ghost" borderRadius={0}>Learning The Fretboard</Button>
+        <NavLink href="/exercises/learning-the-fretboard">Learning The Fretboard</NavLink>
+        <NavLink href="/exercises/building-chords">Building Chords</NavLink>
       </Flex>
     </Box>
   );
