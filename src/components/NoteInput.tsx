@@ -20,7 +20,7 @@ const NoteInput = forwardRef<HTMLInputElement, IProps>(({
   const onKeyPress = useNoteKeyboardInput(value, onChange || _.noop);
 
   return (
-    <Box mt="5" mb="5" p="1">
+    <Box mt="1" mb="1" p="1">
       <Input
         ref={ref}
         type="text" 

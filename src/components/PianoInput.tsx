@@ -6,7 +6,7 @@ import { Note } from '../models/Notes';
 const PianoWrapper = styled(Box)`
   display: block;
   width: 100%;
-  max-width: 400px;
+  max-width: 350px;
   position: relative;
 `;
 

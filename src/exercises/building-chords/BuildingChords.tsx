@@ -67,38 +67,56 @@ export default function BuildingChords() {
         <ExerciseContainer>
           <Heading as="h2" size="md" textTransform="capitalize">
             <Box fontWeight={'normal'} display="inline-block">Build Chord:</Box> {chord.notes[0]} {chord.type}</Heading>
-          <Flex display="inline-flex" alignItems="center">
-            <NoteInput 
-              value={chord.notes[0]}
-              correctValue={chord.notes[0]}
-            />
-            <NoteInput 
-              value={third} 
-              onChange={(newThird) => {
-                setThird(newThird);
-                if (newThird === chord.notes[1]) {
-                  setThirdFocused(true);
-                  fifthInputRef.current?.focus();
-                }
-              }}
-              onBlur={() => setThirdFocused(true)}
-              correctValue={chord.notes[1]}
-              ref={thirdInputRef}
-            />
-            <NoteInput 
-              value={fifth} 
-              onChange={(newFifth) => {
-                setFifth(newFifth);
-                if (newFifth === chord.notes[2]) {
-                  setThirdFocused(true);
-                  nextQuestionButtonRef.current?.focus();
-                }
-              }}
-              onBlur={() => setFifthFocused(true)}
-              correctValue={chord.notes[2]}
-              ref={fifthInputRef}
-            />
-            <Flex p="3" pb="4" alignItems={'center'}>
+          <Flex  mt="5" mb="5" alignItems={'flex-start'} >
+            <Flex direction="column" display="inline-flex" alignItems={'center'}>
+              <Flex display="inline-flex" alignItems="center">
+                <NoteInput 
+                  value={chord.notes[0]}
+                  correctValue={chord.notes[0]}
+                />
+                <NoteInput 
+                  value={third} 
+                  onChange={(newThird) => {
+                    setThird(newThird);
+                    if (newThird === chord.notes[1]) {
+                      setThirdFocused(true);
+                      fifthInputRef.current?.focus();
+                    }
+                  }}
+                  onBlur={() => setThirdFocused(true)}
+                  correctValue={chord.notes[1]}
+                  ref={thirdInputRef}
+                />
+                <NoteInput 
+                  value={fifth} 
+                  onChange={(newFifth) => {
+                    setFifth(newFifth);
+                    if (newFifth === chord.notes[2]) {
+                      setThirdFocused(true);
+                      nextQuestionButtonRef.current?.focus();
+                    }
+                  }}
+                  onBlur={() => setFifthFocused(true)}
+                  correctValue={chord.notes[2]}
+                  ref={fifthInputRef}
+                />
+              </Flex>
+              <Box textAlign={'center'} mt="1" mb="2">
+                <Button variant="link" colorScheme="brand" onClick={revealAnswer}>Reveal Answer</Button>
+              </Box>
+              <Box mb="2" textAlign="center">
+                <Button 
+                  rightIcon={<ArrowRightIcon />} 
+                  leftIcon={<ArrowLeftIcon />} 
+                  variant="ghost" 
+                  colorScheme="brand"
+                  onClick={generateNewChord}
+                  ref={nextQuestionButtonRef}
+                >New Chord</Button>
+              </Box>
+              <PianoInput onChange={onPianoInput} />
+            </Flex>
+            <Flex alignItems={'center'} ml="4" mt="4">
               {isCorrect && (
                 <>
                   <CheckIcon color="green.500" mr="2"/>
@@ -111,22 +129,8 @@ export default function BuildingChords() {
                   <Text color="red.500">Incorrect</Text>
                 </>
               )}
-              {!isCorrect && (
-                  <Button variant="link" colorScheme="teal" onClick={revealAnswer}>Reveal</Button>
-              )}
             </Flex>
           </Flex>
-          <Box mb="5">
-            <Button 
-              rightIcon={<ArrowRightIcon />} 
-              leftIcon={<ArrowLeftIcon />} 
-              variant="ghost" 
-              colorScheme="teal"
-              onClick={generateNewChord}
-              ref={nextQuestionButtonRef}
-            >New Chord</Button>
-          </Box>
-          <PianoInput onChange={onPianoInput} />
         </ExerciseContainer>
       </Flex>
       <SettingsPanel>
