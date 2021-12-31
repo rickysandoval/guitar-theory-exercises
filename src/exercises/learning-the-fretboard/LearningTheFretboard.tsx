@@ -1,29 +1,16 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Button, Flex } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-import Select from 'react-select';
 import styled from 'styled-components/macro';
 import SettingsPanel from '../../components/SettingsPanel';
-import { ALL_STRINGS, GuitarString } from '../../models/Strings';
 import ExerciseContainer from '../ExerciseContainer';
 import ExerciseHeading from '../ExerciseHeading';
-import FretboardQuestionGenerator, { FretboardQuestion, FretboardQuizMode } from './FretboardQuestionGenerator';
+import FretboardQuestionGenerator, { FretboardQuestion } from './FretboardQuestionGenerator';
+import LearningTheFretboardSettings, { ISettings } from './LearningTheFretboardSettings';
 
-const MODE_OPTIONS = [{
-  label: 'Note',
-  value: 'NOTE' as FretboardQuizMode,
-}, {
-  label: 'Fret',
-  value: 'FRET' as FretboardQuizMode,
-}, {
-  label: 'Mix',
-  value: 'MIX' as FretboardQuizMode,
-}];
+const SETTINGS_STORAGE_KEY = 'learning-the-fretboard-settings';
 
-const STRING_OPTIONS = ALL_STRINGS.map(s => ({
-  value: s,
-  label: s,
-}));
+const storedSettings = getInitialSettings();
 
 const QuestionWrapper = styled.div`
   margin-bottom: 2rem;
@@ -63,17 +50,19 @@ const GenerateQuestionWrapper = styled.div`
 
 export default function LearningTheFretboard() {
 
-  const [mode, setMode] = useState<FretboardQuizMode>(getInitialMode());
-  const [strings, setStrings] = useState<GuitarString[]>(getInitialStrings());
+  const [settings, setSettings] = useState<ISettings>(storedSettings);
   const [question, setQuestion] = useState<FretboardQuestion>();
   const [showingAnswer, setShowingAnswer] = useState(false);
 
   const generateNewQuestion = useCallback(() => {
     setShowingAnswer(false);
+    const {
+      mode, strings, fretRange, includeAccidentals,
+    } = settings;
     const newQuestion = FretboardQuestionGenerator
-      .generateRandomQuestion(mode, strings);
+      .generateRandomQuestion(mode, strings, fretRange, includeAccidentals);
     setQuestion(newQuestion);
-  }, [mode, strings]);
+  }, [settings]);
 
   useEffect(() => {
     if (!question) {
@@ -83,8 +72,11 @@ export default function LearningTheFretboard() {
 
   useEffect(() => {
     setShowingAnswer(false);
-    setQuestion(FretboardQuestionGenerator.generateRandomQuestion(mode, strings));
-  }, [mode, strings]);
+    const {
+      mode, strings, fretRange, includeAccidentals,
+    } = settings;
+    setQuestion(FretboardQuestionGenerator.generateRandomQuestion(mode, strings, fretRange, includeAccidentals));
+  }, [settings]);
 
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
@@ -101,6 +93,12 @@ export default function LearningTheFretboard() {
       document.removeEventListener('keypress', keyListener);
     };
   }, [showingAnswer, generateNewQuestion]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    };
+  }, [settings]);
 
   return (
     <Flex height="100%">
@@ -149,52 +147,28 @@ export default function LearningTheFretboard() {
         </ExerciseContainer>
       </Flex>
       <SettingsPanel>
-        <Flex 
-          direction={'column'}
-          maxWidth="200px"
-          >
-            <Box pb="4">
-              <Text>String</Text>
-              <Select
-                options={STRING_OPTIONS}
-                isMulti
-                value={STRING_OPTIONS.filter(option => strings.includes(option.value))}
-                isSearchable={false}
-                onChange={(stringValues) => {
-                  if (stringValues.length) {
-                    const newStrings = stringValues.map(({ value }) => value);
-                    setStrings(newStrings);
-                  }
-                }}
-                isClearable={false}
-              />
-            </Box>
-            <Box pb="4">
-              <Text>Mode</Text>
-              <Select
-                options={MODE_OPTIONS}
-                value={MODE_OPTIONS.find(option => option.value === mode)}
-                onChange={(modeOption) => {
-                  if (modeOption) {
-                    setMode(modeOption.value);
-                  }
-                }}
-                isSearchable={false}
-                isClearable={false}
-              />
-            </Box>
-          </Flex>
+        <LearningTheFretboardSettings
+          settings={settings}
+          onSettingsChange={setSettings}
+        />
       </SettingsPanel>
     </Flex>
   );
 }
 
-function getInitialMode(): FretboardQuizMode {
-  return 'MIX';
-}
-
-
-function getInitialStrings(): GuitarString[] {
-  const defaultReturn: GuitarString[] = [6];
-  return defaultReturn; 
+function getInitialSettings(): ISettings {
+  try {
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '');
+    if (!settings) {
+      throw new Error();
+    }
+    return settings;
+  } catch (e) {
+    return {
+      mode: 'MIX',
+      strings: [6],
+      fretRange: [0, 12],
+      includeAccidentals: true,
+    };
+  }
 }

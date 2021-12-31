@@ -13,6 +13,10 @@ export default function SidebarNav() {
       background="gray.50" 
       borderRight="1px" 
       borderColor="gray.100"
+      display={{
+        base: 'none',
+        md: 'block',
+      }}
     >
       <Flex direction="column">
         <NavLink href="/exercises/learning-the-fretboard">Learning The Fretboard</NavLink>

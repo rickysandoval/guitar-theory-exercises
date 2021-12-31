@@ -3,10 +3,14 @@ import styled from 'styled-components/macro';
 import SidebarNav from '../components/SidebarNav';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Exercises from '../exercises/Exercises';
+import MobileNav from '../components/MobileNav';
 
 const MainWrapper = styled(Flex)`
   flex-direction: column;
   height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  overflow: hidden;
 `;
 
 export default function Main() {
@@ -24,6 +28,7 @@ export default function Main() {
           </Routes>
         </BrowserRouter>
       </Flex>
+      <MobileNav />
     </MainWrapper>
   );
 }
