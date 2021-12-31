@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import NoteInput from '../../components/NoteInput';
 import PianoInput from '../../components/PianoInput';
 import SettingsPanel from '../../components/SettingsPanel';
@@ -7,10 +7,40 @@ import { Chord } from '../../models/Chords';
 import { generateRandomChord } from '../../utils/chord-utils';
 import ExerciseContainer from '../ExerciseContainer';
 import ExerciseHeading from '../ExerciseHeading';
-import { Note } from '../../models/Notes';
+import { ALL_ACCIDENTALS, Note } from '../../models/Notes';
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, CloseIcon } from '@chakra-ui/icons';
+import BuildingChordsSettings, { ISettings } from './BuildingChordsSettings';
 
-const defaultChord = generateRandomChord(undefined, ['major']);
+const SETTINGS_STORAGE_KEY = 'building-chords-settings';
+
+function getInitialSettings(): ISettings {
+  try {
+    const settings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY) || '');
+    if (!settings) {
+      throw new Error();
+    }
+    return settings;
+  } catch (e) {
+    return {
+      chordTypes: ['major'],
+      includeAccidentals: true,
+    };
+  }
+}
+
+const generateChord = (settings: ISettings, oldChord?: Chord) => {
+  const exclude = !settings.includeAccidentals ? [...ALL_ACCIDENTALS] : [];
+  if (oldChord) {
+    exclude.push(...oldChord.notes.slice(0, 1));
+  }
+  const newChord = generateRandomChord(exclude, settings.chordTypes);
+  return newChord;
+};
+
+const initialSettings = getInitialSettings();
+
+const defaultChord = generateChord(initialSettings);
+
 
 export default function BuildingChords() {
   const [chord, setChord] = useState<Chord>(defaultChord);
@@ -21,6 +51,8 @@ export default function BuildingChords() {
   const thirdInputRef = useRef<HTMLInputElement>(null);
   const fifthInputRef = useRef<HTMLInputElement>(null);
   const nextQuestionButtonRef = useRef<HTMLButtonElement>(null);
+
+  const [settings, setSettings] = useState<ISettings>(initialSettings);
 
   const onPianoInput = (note: Note) => {
     if (!third) {
@@ -51,33 +83,45 @@ export default function BuildingChords() {
     setFifth(chord.notes[2]);
   };
 
-  const generateNewChord = () => {
-    setChord(generateRandomChord(chord ? chord.notes.slice(0, 1) : [], ['major']));
+  const generateNewChord = useCallback((withSettings: ISettings, oldChord: Chord) => {
+    setChord(generateChord(withSettings, oldChord));
+
     setFifth(undefined);
     setThird(undefined);
     setFifthFocused(false);
     setThirdFocused(false);
     thirdInputRef.current?.focus();
-  };
+  }, []);
+
+  useEffect(() => {
+    generateChord(settings, chord);
+  }, [settings]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    };
+  }, [settings]);
 
   return (
     <Flex height="100%">
       <Flex flex="1" direction="column">
         <ExerciseHeading title="Building Chords">Directions: Build out the triad/chord starting with the given note.</ExerciseHeading>
         <ExerciseContainer>
-          <Heading as="h2" size="md" textTransform="capitalize">
-            <Box fontWeight={'normal'} display="inline-block">Build Chord:</Box> {chord.notes[0]} {chord.type}</Heading>
           <Flex  mt="5" mb="5" alignItems={'flex-start'} >
             <Flex direction="column" display="inline-flex" alignItems={'center'}>
+              <Heading  mb="5" as="h2" size="xl" textTransform="capitalize">{chord.notes[0]} {chord.type}</Heading>
               <Flex display="inline-flex" alignItems="center">
                 <NoteInput 
                   value={chord.notes[0]}
                   correctValue={chord.notes[0]}
+                  includeAccidentalButtons={false}
                 />
                 <NoteInput 
                   value={third} 
                   onChange={(newThird) => {
                     setThird(newThird);
+                    thirdInputRef.current?.focus();
                     if (newThird === chord.notes[1]) {
                       setThirdFocused(true);
                       fifthInputRef.current?.focus();
@@ -91,6 +135,7 @@ export default function BuildingChords() {
                   value={fifth} 
                   onChange={(newFifth) => {
                     setFifth(newFifth);
+                    fifthInputRef.current?.focus();
                     if (newFifth === chord.notes[2]) {
                       setThirdFocused(true);
                       nextQuestionButtonRef.current?.focus();
@@ -104,13 +149,13 @@ export default function BuildingChords() {
               <Box textAlign={'center'} mt="1" mb="2">
                 <Button variant="link" colorScheme="brand" onClick={revealAnswer}>Reveal Answer</Button>
               </Box>
-              <Box mb="2" textAlign="center">
+              <Box mb="10" textAlign="center">
                 <Button 
                   rightIcon={<ArrowRightIcon />} 
                   leftIcon={<ArrowLeftIcon />} 
                   variant="ghost" 
                   colorScheme="brand"
-                  onClick={generateNewChord}
+                  onClick={() => generateNewChord(settings, chord)}
                   ref={nextQuestionButtonRef}
                 >New Chord</Button>
               </Box>
@@ -134,7 +179,10 @@ export default function BuildingChords() {
         </ExerciseContainer>
       </Flex>
       <SettingsPanel>
-        Settings
+        <BuildingChordsSettings
+          settings={settings}
+          onSettingsChange={setSettings}
+        />
       </SettingsPanel>
     </Flex>
   );

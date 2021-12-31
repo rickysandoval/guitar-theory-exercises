@@ -11,6 +11,7 @@ const SettingsDrawer = styled(Box)<{ open: boolean }>`
   right: 0;
   background: white;
   transform: translateX(100%);
+  z-index: 4;
   ${({ open }) => open && css`
     transform: translateX(0);
   `}

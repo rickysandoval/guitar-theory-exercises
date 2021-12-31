@@ -25,6 +25,7 @@ const WhiteKey = ({
       borderRadius={0}
       pt="40%"
       pb="20px"
+      bg="white"
     >{children}</Button>
   );
 };
