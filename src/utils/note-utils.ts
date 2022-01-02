@@ -44,3 +44,5 @@ export function generateRandomNote(excludeNotes: Note[] = []): Note {
   const allowedNotes = _.difference(ALL_NOTES, excludeNotes);
   return allowedNotes[getRandomInt(allowedNotes.length - 1)];
 }
+
+export const isSharpOrFlat = (note: Note) => note.includes(SHARP) || note.includes(FLAT);
